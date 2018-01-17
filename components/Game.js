@@ -1,6 +1,6 @@
 import ExpoGraphics from 'expo-graphics';
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Platform, View } from 'react-native';
 
 import Machine from '../Game';
 import Footer from './Footer';
@@ -39,6 +39,7 @@ class Game extends React.Component {
             onContextCreate={this.onContextCreate}
             onRender={this.machine.onRender}
             onResize={this.machine.onResize}
+            onShouldReloadContext={this.onShouldReloadContext}
           />
         </TouchableView>
         <ScoreMeta />
@@ -47,6 +48,10 @@ class Game extends React.Component {
       </View>
     );
   }
+  onShouldReloadContext = () => {
+    /// The Android OS loses gl context on background, so we should reload it.
+    return Platform.OS === 'android';
+  };
 }
 
 export default Game;

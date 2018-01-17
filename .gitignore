@@ -2,3 +2,4 @@ node_modules/**/*
 .expo/**/*
 ExpoParty/Secret.js
 release/builds
+.vscode

@@ -9,7 +9,6 @@ import * as models from './models';
 import { AsyncStorage } from 'react-native';
 const persistPlugin = createRematchPersist({
   whiteList: ['score'],
-  //   throttle: 5000,
   version: 2,
   storage: AsyncStorage,
 });
