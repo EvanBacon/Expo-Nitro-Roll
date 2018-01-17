@@ -22,7 +22,7 @@
       "icon": "./assets/icons/ios.png",
       "supportsTablet": true,
       "bundleIdentifier": "com.evanbacon.nitro-roll",
-      "buildNumber": "0.0.1",
+      "buildNumber": "0.0.0",
       "splash": {
         "image": "./assets/icons/splash.png",
         "resizeMode": "cover",
