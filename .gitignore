@@ -1,0 +1,3 @@
+node_modules/**/*
+.expo/**/*
+ExpoParty/Secret.js

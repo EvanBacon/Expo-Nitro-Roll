@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Nitro Roll",
+    "description":
+      "Roll through through the nitro-sonic voidiverse avoiding the bleqaulizers!",
+    "slug": "nitro-roll",
+    "privacy": "public",
+    "sdkVersion": "24.0.0",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "primaryColor": "#000000",
+    "icon": "./assets/icons/expo.png",
+    "splash": {
+      "image": "./assets/icons/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#000000"
+    },
+    "packagerOpts": {
+      "assetExts": ["ttf", "mp4", "otf", "xml", "mp3", "wav"]
+    },
+    "ios": {
+      "icon": "./assets/icons/ios.png",
+      "supportsTablet": true,
+      "bundleIdentifier": "com.evanbacon.nitro-roll",
+      "buildNumber": "0.0.1",
+      "splash": {
+        "image": "./assets/icons/splash.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#000000",
+        "tabletImage": "./assets/icons/splash.png"
+      }
+    },
+    "android": {
+      "icon": "./assets/icons/android.png",
+      "package": "com.evanbacon.nitro-roll",
+      "versionCode": 1
+    }
+  }
+}
