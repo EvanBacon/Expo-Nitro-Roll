@@ -1,5 +1,4 @@
 import { THREE } from 'expo-three';
-// import Factory from '../Factory';
 
 class GameObject extends THREE.Object3D {
   _loaded = false;

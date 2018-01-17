@@ -2,8 +2,8 @@
   "expo": {
     "name": "Nitro Roll",
     "description":
-      "Roll through through the nitro-sonic voidiverse avoiding the bleqaulizers!",
-    "slug": "nitro-roll",
+      "Roll through through the nitro-sonic Voidiverse avoiding the Bleaqaulizers!",
+    "slug": "nitroroll",
     "privacy": "public",
     "sdkVersion": "24.0.0",
     "version": "1.0.0",
@@ -21,7 +21,7 @@
     "ios": {
       "icon": "./assets/icons/ios.png",
       "supportsTablet": true,
-      "bundleIdentifier": "com.evanbacon.nitro-roll",
+      "bundleIdentifier": "com.evanbacon.nitroroll",
       "buildNumber": "0.0.0",
       "splash": {
         "image": "./assets/icons/splash.png",

@@ -1,9 +1,8 @@
 import { THREE } from 'expo-three';
 
 import GameObject from '../core/GameObject';
-import flatMaterial from '../utils/flatMaterial';
-import randomColor from '../utils/randomColor';
 import Factory from '../Factory';
+import randomColor from '../utils/randomColor';
 
 class Cuboid extends GameObject {
   loadAsync = async scene => {

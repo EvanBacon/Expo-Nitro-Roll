@@ -2,8 +2,8 @@ import { THREE } from 'expo-three';
 import { TweenMax } from 'gsap';
 
 import Factory from '../Factory';
-import GameObject from './GameObject';
 import randomRange from '../utils/randomRange';
+import GameObject from './GameObject';
 
 class Particles extends GameObject {
   parts = [];
