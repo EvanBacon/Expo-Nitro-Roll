@@ -31,6 +31,8 @@
       }
     },
     "android": {
+      "playStoreUrl":
+        "https://play.google.com/store/apps/details?id=com.evanbacon.nitro-roll",
       "icon": "./assets/icons/android.png",
       "package": "com.evanbacon.nitro-roll",
       "versionCode": 1
