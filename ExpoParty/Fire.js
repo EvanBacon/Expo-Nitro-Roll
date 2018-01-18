@@ -40,7 +40,7 @@ class Fire {
       return;
     }
     console.log('saveUserInfo', uid, info);
-    const ref = this.db.collection('users').doc(uid);
+    const ref = this.db.collection(getSlug()).doc(uid);
     const setWithMerge = ref.set({ uid, ...info }, { merge: true });
   };
 
@@ -52,11 +52,11 @@ class Fire {
   };
 
   getPagedScore = async ({ size, start }) => {
-    const slug = getSlug();
+    // const slug = getSlug();
 
     let ref = this.db
-      .collection('users')
-      .where('slug', '==', slug)
+      .collection(getSlug())
+      // .where('slug', '==', slug)
       .orderBy('score', 'desc')
       .limit(size);
     try {
