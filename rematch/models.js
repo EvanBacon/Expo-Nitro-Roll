@@ -41,6 +41,20 @@ export const game = {
   effects: {},
 };
 
+export const dailyStreak = {
+  state: 0,
+  reducers: {
+    increment: s => s + 1,
+    assign: (s, props) => props,
+    reset: () => 0,
+  },
+  effects: {
+    rewardUser: async streak => {
+      console.log('award', streak);
+    },
+  },
+};
+
 export const muted = {
   state: false,
   reducers: {
