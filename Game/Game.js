@@ -24,6 +24,7 @@ class Game extends GameObject {
     this._width = width;
     this._height = height;
     dispatch.score.reset();
+    this.score = 0;
     dispatch.game.menu();
   }
 
@@ -57,7 +58,7 @@ class Game extends GameObject {
   async loadAsync() {
     this.scene = this.createScene();
     const { color } = this;
-    this.scene.background = color;
+    // this.scene.background = color;
     this.scene.fog = new THREE.Fog(color, 100, 950);
 
     this.scene.add(this);
@@ -94,7 +95,7 @@ class Game extends GameObject {
     this.hero.x = Settings.initialCube * Settings.cubeSize;
     this.hero.y = Settings.cubeSize;
     this.hero.canMove = true;
-
+    this.hero.updatePivot();
     this.addEnemy();
   };
 
@@ -103,7 +104,7 @@ class Game extends GameObject {
     dispatch.game.play();
 
     if (Math.round(randomRange(0, 3)) === 0) {
-      this.takeScreenshot();
+      // this.takeScreenshot();
     }
   };
 
@@ -129,7 +130,7 @@ class Game extends GameObject {
     this.takeScreenshot();
     this.screenShotTaken = false;
     dispatch.score.reset();
-
+    this.score = 0;
     this.hero.canMove = false;
     AudioManager.sharedInstance.pauseAsync('song');
     const name = 'bass_0' + Math.round(randomRange(0, 8));
@@ -161,24 +162,35 @@ class Game extends GameObject {
       );
       this.hero.canMove = false;
       dispatch.score.increment();
+      this.score += 1;
       TweenMax.to(this.terrainGroup, Settings.moveAnimationDuration, {
         x: this.terrainGroup.x - Settings.cubeSize,
       });
       TweenMax.to(this.enemyGroup, Settings.moveAnimationDuration, {
         x: this.terrainGroup.x - Settings.cubeSize,
       });
+      TweenMax.to(this.hero, Settings.moveAnimationDuration, {
+        x: this.hero.x - Settings.cubeSize,
+        onComplete: () => {
+          this.hero.x = Settings.initialCube * Settings.cubeSize;
+        },
+      });
 
-      TweenMax.to(this.hero.rotation, Settings.moveAnimationDuration, {
-        z: this.hero.rotation.z - Math.PI / 2,
+      const targetRotation = this.hero.group.rotation.z - Math.PI / 2;
+      TweenMax.to(this.hero.group.rotation, Settings.moveAnimationDuration, {
+        z: targetRotation,
         onComplete: async () => {
+          this.hero.group.rotation.z = targetRotation;
+          this.hero.updatePivot();
           this.hero.canMove = true;
           const index = this.terrainGroup.subIndex || 0;
-          const enemy = this.enemyGroup.objects[0];
+          let enemy = this.enemyGroup.objects[0];
           if (
             this.enemyGroup.objects.length > 0 &&
             enemy.x <= this.terrainGroup.objects[index].x
           ) {
             this.enemyGroup.remove(enemy);
+            enemy = null;
           }
 
           this.terrainGroup.objects[index].position.x +=
@@ -211,7 +223,10 @@ class Game extends GameObject {
   addEnemy = async () => {
     const count = this.terrainGroup.objects.length;
     const enemy = await this.enemyGroup.add(new Cuboid());
-    enemy.speed = randomRange(3, 3.25);
+    enemy.speed = Math.min(
+      randomRange(3, 3.25) + this.score * 0.1,
+      Settings.maxSpeed,
+    );
     const index = ((this.terrainGroup.subIndex || 0) + count - 1) % count;
     enemy.x = this.terrainGroup.objects[index].x;
   };

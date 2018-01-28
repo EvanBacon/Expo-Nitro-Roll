@@ -5,6 +5,7 @@ import { StyleSheet, Platform, View } from 'react-native';
 import Machine from '../Game';
 import Footer from './Footer';
 import ScoreMeta from './ScoreMeta';
+import Polaroid from './Polaroid';
 import Title from './Title';
 import TouchableView from './TouchableView';
 import { dispatch } from '@rematch/core';
@@ -45,6 +46,8 @@ class Game extends React.Component {
         <ScoreMeta />
         <Title />
         <Footer onLeaderboardPress={this.onLeaderboardPress} />
+
+        <Polaroid />
       </View>
     );
   }

@@ -1,19 +1,20 @@
 import GameObject from '../core/GameObject';
 import flatMaterial from '../utils/flatMaterial';
 import randomRange from '../utils/randomRange';
+import Factory from '../Factory';
 
 class Stars extends GameObject {
   particles = [];
   loadAsync = async scene => {
     const particles = new THREE.Group();
     this.add(particles);
-    const geometry = new THREE.TetrahedronGeometry(3, 0);
-    const geometryBall = new THREE.SphereBufferGeometry(5, 7, 7);
+    const geometry = new THREE.TetrahedronBufferGeometry(
+      12,
+      Math.round(randomRange(0, 2)),
+    );
+    const material = Factory.shared.materials.red;
 
-    const color = 0xff0000;
-    const material = flatMaterial({ color });
-
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 100; i++) {
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(
         (Math.random() - 0.5) * 1000,

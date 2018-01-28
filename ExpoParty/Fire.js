@@ -25,7 +25,9 @@ class Fire {
         alert(message);
       }
     } else {
+      return;
       this.saveUser();
+      global.debugMockTextures && global.debugMockTextures();
     }
   };
 
@@ -56,7 +58,6 @@ class Fire {
 
     let ref = this.db
       .collection(getSlug())
-      // .where('slug', '==', slug)
       .orderBy('score', 'desc')
       .limit(size);
     try {
