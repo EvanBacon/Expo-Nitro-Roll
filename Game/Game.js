@@ -1,7 +1,7 @@
 import Settings from '../constants/Settings';
 import { dispatch } from '@rematch/core';
 import ExpoTHREE, { THREE } from 'expo-three';
-import { Expo as ExpoEase, Linear, TweenMax } from 'gsap';
+import { Expo as ExpoEase, Linear, TweenLite } from 'gsap';
 
 import AudioManager from '../Manager/AudioManager';
 import GameObject from './engine/core/GameObject';
@@ -73,15 +73,17 @@ class Game extends GameObject {
   }
 
   loadGame = async () => {
-    if (this.terrainGroup) {
-      this.remove(this.terrainGroup);
+    if (this.levelGroup) {
+      this.terrainGroup = null;
+      this.enemyGroup = null;
+      this.remove(this.levelGroup);
+      this.levelGroup = null;
     }
-    this.terrainGroup = await this.add(new Group());
 
-    if (this.enemyGroup) {
-      this.remove(this.enemyGroup);
-    }
-    this.enemyGroup = await this.add(new Group());
+    this.levelGroup = await this.add(new Group());
+    this.terrainGroup = await this.levelGroup.add(new Group());
+    this.enemyGroup = await this.levelGroup.add(new Group());
+
     this.camera.position.x = width / Settings.cubeSize * Settings.cubeSize / 2;
     for (let i = 0; i < width / Settings.cubeSize + 2; i++) {
       const square = await this.terrainGroup.add(new Platform());
@@ -138,14 +140,14 @@ class Game extends GameObject {
 
     const duration = 0.8;
 
-    TweenMax.to(this.scale, duration, {
+    TweenLite.to(this.scale, duration, {
       y: 0.0001,
       z: 0.0001,
       ease: ExpoEase.easeOut,
       onComplete: () => {
         this.reset();
 
-        TweenMax.to(this.scale, duration, {
+        TweenLite.to(this.scale, duration, {
           x: 1,
           y: 1,
           z: 1,
@@ -163,13 +165,10 @@ class Game extends GameObject {
       this.hero.canMove = false;
       dispatch.score.increment();
       this.score += 1;
-      TweenMax.to(this.terrainGroup, Settings.moveAnimationDuration, {
-        x: this.terrainGroup.x - Settings.cubeSize,
+      TweenLite.to(this.levelGroup, Settings.moveAnimationDuration, {
+        x: this.levelGroup.x - Settings.cubeSize,
       });
-      TweenMax.to(this.enemyGroup, Settings.moveAnimationDuration, {
-        x: this.terrainGroup.x - Settings.cubeSize,
-      });
-      TweenMax.to(this.hero, Settings.moveAnimationDuration, {
+      TweenLite.to(this.hero, Settings.moveAnimationDuration, {
         x: this.hero.x - Settings.cubeSize,
         onComplete: () => {
           this.hero.x = Settings.initialCube * Settings.cubeSize;
@@ -177,7 +176,7 @@ class Game extends GameObject {
       });
 
       const targetRotation = this.hero.group.rotation.z - Math.PI / 2;
-      TweenMax.to(this.hero.group.rotation, Settings.moveAnimationDuration, {
+      TweenLite.to(this.hero.group.rotation, Settings.moveAnimationDuration, {
         z: targetRotation,
         onComplete: async () => {
           this.hero.group.rotation.z = targetRotation;
@@ -187,9 +186,12 @@ class Game extends GameObject {
           let enemy = this.enemyGroup.objects[0];
           if (
             this.enemyGroup.objects.length > 0 &&
-            enemy.x <= this.terrainGroup.objects[index].x
+            enemy.x <= this.terrainGroup.objects[index].x &&
+            enemy.dead !== true
           ) {
-            this.enemyGroup.remove(enemy);
+            enemy.dead = true;
+            // this.enemyGroup.remove(enemy);
+            this.deadEnemies.push(enemy);
             enemy = null;
           }
 
@@ -198,16 +200,20 @@ class Game extends GameObject {
           this.terrainGroup.subIndex =
             (index + 1) % this.terrainGroup.objects.length;
 
-          if (randomRange(0, 9) > 6) {
+          if (randomRange(0, 9) > 4 && this.enemyCombo < 3) {
             await this.addEnemy();
+            this.enemyCombo += 1;
+          } else {
+            this.enemyCombo = 0;
           }
         },
       });
     }
   };
+  enemyCombo = 0;
 
   collision = () => {
-    const playerIndex = Math.floor((this.hero.x - this.enemyGroup.x) / 40);
+    const playerIndex = Math.floor((this.hero.x - this.levelGroup.x) / 40);
 
     for (let enemy of this.enemyGroup.objects) {
       const index = Math.floor(enemy.x / 40);
@@ -220,11 +226,22 @@ class Game extends GameObject {
     }
   };
 
+  deadEnemies = [];
+
   addEnemy = async () => {
     const count = this.terrainGroup.objects.length;
-    const enemy = await this.enemyGroup.add(new Cuboid());
+
+    let enemy;
+    if (this.deadEnemies.length > 0) {
+      enemy = this.deadEnemies.shift();
+      enemy.dead = false;
+      enemy.updateClass();
+    } else {
+      enemy = await this.enemyGroup.add(new Cuboid());
+    }
+
     enemy.speed = Math.min(
-      randomRange(3, 3.25) + this.score * 0.1,
+      randomRange(3, 3.25) + this.score * 0.01,
       Settings.maxSpeed,
     );
     const index = ((this.terrainGroup.subIndex || 0) + count - 1) % count;

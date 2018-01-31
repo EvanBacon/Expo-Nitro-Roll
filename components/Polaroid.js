@@ -113,7 +113,7 @@ class PresentedPolaroid extends React.Component {
     const { game, screenshot } = this.props;
     const animation = game === 'menu' ? 'bounceInRight' : 'bounceOutRight';
 
-    if (!screenshot) {
+    if (!screenshot || screenshot == '') {
       return null;
     }
 

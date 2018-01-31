@@ -14,7 +14,7 @@ class Stars extends GameObject {
     );
     const material = Factory.shared.materials.red;
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 50; i++) {
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(
         (Math.random() - 0.5) * 1000,
