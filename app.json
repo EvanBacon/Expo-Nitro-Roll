@@ -23,6 +23,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.evanbacon.nitroroll",
       "buildNumber": "0.0.0",
+      "appStoreUrl":
+        "https://itunes.apple.com/us/app/nitro-roll/id1336537624?mt=8",
       "splash": {
         "image": "./assets/icons/splash.png",
         "resizeMode": "cover",
