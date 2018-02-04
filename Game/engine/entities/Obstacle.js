@@ -1,8 +1,8 @@
 import { THREE } from 'expo-three';
 
+import Settings from '../../../constants/Settings';
 import GameObject from '../core/GameObject';
 import Factory from '../Factory';
-import Settings from '../../../constants/Settings';
 import randomRange from '../utils/randomRange';
 
 const radius = Settings.cubeSize;
@@ -10,7 +10,7 @@ const height = radius * 5;
 const maxScale = height / radius;
 const halfSize = radius / 2;
 const halfHeight = height / 2;
-const forgivness = 0.7;
+const forgivness = 0.8;
 global.cuboidGeom =
   global.cuboidGeom || new THREE.BoxBufferGeometry(radius, radius, radius);
 class Obstacle extends GameObject {

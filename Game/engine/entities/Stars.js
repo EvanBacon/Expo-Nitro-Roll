@@ -1,8 +1,8 @@
-import GameObject from '../core/GameObject';
-import flatMaterial from '../utils/flatMaterial';
-import randomRange from '../utils/randomRange';
-import Factory from '../Factory';
 import { Platform } from 'react-native';
+
+import GameObject from '../core/GameObject';
+import Factory from '../Factory';
+import randomRange from '../utils/randomRange';
 
 class Stars extends GameObject {
   particles = [];

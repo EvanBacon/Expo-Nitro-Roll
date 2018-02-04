@@ -28,7 +28,7 @@ class Fire {
         alert(message);
       }
     } else {
-      return;
+      // return;
       await this.getUser();
       this.saveUser();
       this.compareDaily();
@@ -138,7 +138,7 @@ class Fire {
       return;
     }
     // console.log('saveUserInfo', uid, info);
-    const ref = this.db.collection(getSlug()).doc(uid);
+    const ref = this.doc;
     const setWithMerge = ref.set({ uid, ...info }, { merge: true });
   };
 
@@ -152,7 +152,7 @@ class Fire {
   getPagedScore = async ({ size, start }) => {
     // const slug = getSlug();
 
-    let ref = this.db.collection.orderBy('score', 'desc').limit(size);
+    let ref = this.collection.orderBy('score', 'desc').limit(size);
     try {
       if (start) {
         ref = ref.startAfter(start);

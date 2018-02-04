@@ -1,113 +1,100 @@
-import Settings from '../constants/Settings';
 import { dispatch } from '@rematch/core';
 import ExpoTHREE, { THREE } from 'expo-three';
-import { Expo as ExpoEase, Linear, TweenLite, Quad } from 'gsap';
+import { Expo as ExpoEase, Linear, TweenLite } from 'gsap';
 
+import Settings from '../constants/Settings';
 import AudioManager from '../Manager/AudioManager';
 import GameObject from './engine/core/GameObject';
-import Group from './engine/core/Group';
 import Cuboid from './engine/entities/Cuboid';
+import Level from './engine/entities/Level';
 import Lighting from './engine/entities/Lighting';
-import Platform from './engine/entities/Platform';
 import Stars from './engine/entities/Stars';
 import randomRange from './engine/utils/randomRange';
-import Obstacle from './engine/entities/Obstacle';
-import Terrain from './engine/entities/Terrain';
-import Level from './engine/entities/Level';
-
-const height = Settings.cubeSize * Settings.cubesHigh;
-const width = Settings.cubeSize * Settings.cubesWide;
 
 class Game extends GameObject {
-  gameEnded = false;
+  gameEnded = true;
 
   constructor(width, height, renderer) {
     super();
     this.renderer = renderer;
     this._width = width;
     this._height = height;
-    dispatch.score.reset();
-    this.score = 0;
-    dispatch.game.menu();
   }
 
   createScene = () => {
-    return new THREE.Scene();
+    const scene = new THREE.Scene();
+    // this.scene.background = color;
+    scene.fog = new THREE.Fog(new THREE.Color(`hsl(20, 100%, 0%)`), 100, 950);
+    scene.add(this);
+    return scene;
   };
 
-  createCameraAsync = async (width, height) => {
+  createCamera = async (width, height) => {
     const camera = new THREE.PerspectiveCamera(60, width / height, 1, 10000);
-    camera.position.set(0, 100, 400);
-    camera.lookAt(new THREE.Vector3(10, 80, 0));
-    camera.ogPosition = camera.position.clone();
+    const spaceWidth = (Settings.cubesWide - 2) * Settings.cubeSize * 0.5;
 
+    camera.position.set(spaceWidth, 100, 400);
+    camera.lookAt(new THREE.Vector3(spaceWidth + 20, 80, 0));
     return camera;
   };
 
   async reset() {
     super.reset();
     dispatch.game.menu();
-    this.camera.position.x = width / Settings.cubeSize * Settings.cubeSize / 2;
-
     AudioManager.sharedInstance.playAsync('song', true, false);
     await this.loadGame();
-    this.gameEnded = false;
-  }
-
-  get color() {
-    return new THREE.Color(`hsl(20, 100%, 0%)`);
   }
 
   async loadAsync() {
     this.scene = this.createScene();
-    const { color } = this;
-    // this.scene.background = color;
-    this.scene.fog = new THREE.Fog(color, 100, 950);
-
-    this.scene.add(this);
-    this.camera = await this.createCameraAsync(this._width, this._height);
-
-    const types = [new Lighting(this), new Stars(this)];
-    const promises = types.map(type => this.add(type));
-    await Promise.all(promises);
-    await this.loadGame();
+    this.camera = await this.createCamera(this._width, this._height);
+    await this.loadAnonymous();
+    await this.reset();
     await super.loadAsync(this.scene);
-    this.gameEnded = false;
   }
 
-  loadGame = async () => {
+  loadAnonymous = async () => {
+    const types = [new Lighting(this), new Stars(this)];
+    const promises = types.map(type => this.add(type));
+    return Promise.all(promises);
+  };
+
+  loadLevel = async () => {
     if (this.level) {
       this.remove(this.level);
       this.level = null;
     }
     this.level = await this.add(new Level());
     this.level.onCollide = () => this.gameOver();
+  };
 
-    this.camera.position.x = width / Settings.cubeSize * Settings.cubeSize / 2;
+  loadHero = async () => {
+    this.lastLevelPosition = 0;
 
     if (this.hero) {
       this.remove(this.hero);
     }
     this.hero = await this.add(new Cuboid());
+    // this.hero.onMove = value =>
+    //   (this.level.x = this.lastLevelPosition - value % Settings.cubeSize);
+    this.hero.onComplete = async () => (this.level.index = this.index);
+  };
 
-    this.lastLevelPosition = 0;
-    this.hero.onMove = value => {
-      this.level.x = this.lastLevelPosition - value % Settings.cubeSize;
-    };
-    this.hero.onComplete = async () => {
-      this.level.finishedMoving();
-    };
-
-    this.addEnemy();
+  loadGame = async () => {
+    await this.loadLevel();
+    await this.loadHero();
   };
 
   onTouchesBegan = async ({ pageX: x, pageY: y }) => {
-    this.moveSquare();
-    dispatch.game.play();
+    if (this.gameEnded) {
+      this.gameEnded = false;
 
-    if (Math.round(randomRange(0, 3)) === 0) {
+      dispatch.score.reset();
+      dispatch.game.play();
+    } else if (Math.round(randomRange(0, 3)) === 0) {
       // this.takeScreenshot();
     }
+    this.moveSquare();
   };
 
   takeScreenshot = async () => {
@@ -129,17 +116,18 @@ class Game extends GameObject {
     }
     this.gameEnded = true;
 
-    this.takeScreenshot();
-    this.screenShotTaken = false;
-    dispatch.score.reset();
-    this.score = 0;
-    this.hero.canMove = false;
     AudioManager.sharedInstance.pauseAsync('song');
     const name = 'bass_0' + Math.round(randomRange(0, 8));
     AudioManager.sharedInstance.playAsync(name);
 
-    const duration = 0.8;
+    this.takeScreenshot();
+    this.screenShotTaken = false;
 
+    this.animateGameOver();
+  };
+
+  animateGameOver = () => {
+    const duration = 0.8;
     TweenLite.to(this.scale, duration, {
       y: 0.0001,
       z: 0.0001,
@@ -157,23 +145,25 @@ class Game extends GameObject {
     });
   };
 
+  get index() {
+    const index = Math.abs(Math.round(this.level.x)) / Settings.cubeSize;
+    return index;
+  }
+
   moveSquare = () => {
-    if (this.hero.canMove) {
-      AudioManager.sharedInstance.playAsync(
-        'pop_0' + Math.round(randomRange(0, 1)),
-      );
-      dispatch.score.increment();
-      this.score += 1;
-      this.level.score = this.score;
-      this.lastLevelPosition = this.level.x;
+    if (!this.hero.rotating && !this.gameEnded) {
+      this.scorePoint();
       this.hero.rotating = true;
+      this.level.move();
     }
   };
 
-  update(delta, time) {
-    super.update(delta, time);
-    this.level.playerIndex = this.hero.index;
-  }
+  scorePoint = () => {
+    AudioManager.sharedInstance.playAsync(
+      'pop_0' + Math.round(randomRange(0, 1)),
+    );
+    dispatch.score.increment();
+  };
 
   onResize = ({ width, height }) => {
     this.camera.aspect = width / height;

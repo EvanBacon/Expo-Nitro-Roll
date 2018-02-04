@@ -1,76 +1,49 @@
 import GameObject from '../core/GameObject';
+import Obstacles from './Obstacles';
 import Terrain from './Terrain';
-import randomRange from '../utils/randomRange';
 import Settings from '../../../constants/Settings';
+import easeInQuad from '../math/easeInQuad';
 
 class Level extends GameObject {
-  deadEnemies = [];
-  enemyCombo = 0;
-  playerIndex = Settings.initialCube;
-  subIndex = 0;
-
   loadAsync = async scene => {
     this.terrain = await this.add(new Terrain());
-    this.enemies = await this.add(new Group());
+    this.obstacles = await this.add(new Obstacles());
+    this.obstacles.onCollide = () => this.onCollide();
     await super.loadAsync(scene);
   };
 
-  finishedMoving = () => {    
-    let enemy = this.enemies.objects[0];
-    if (
-      this.enemies.objects.length > 0 &&
-      enemy.x <= this.terrain.objects[this.subIndex].x &&
-      enemy.dead !== true
-    ) {
-      enemy.dead = true;
-      this.deadEnemies.push(enemy);
-      enemy = null;
-    }
-
-    this.terrain.recycle(this.subIndex);
-
-    if (randomRange(0, 9) > 4 && this.enemyCombo < 3) {
-        await this.addEnemy();
-        this.enemyCombo += 1;
-      } else {
-        this.enemyCombo = 0;
-      }
+  get index() {
+    return this._index;
   }
-  addEnemy = async () => {
-    const count = this.terrain.objects.length;
-    let enemy;
-    if (this.deadEnemies.length > 0) {
-      enemy = this.deadEnemies.shift();
-      enemy.dead = false;
-      enemy.updateClass();
-    } else {
-      enemy = await this.enemies.add(new Obstacle());
+  set index(value) {
+    if (value === this._index) {
+      return;
     }
+    this._index = value;
+    this.obstacles.index = value;
+    this.terrain.index = value;
+  }
 
-    enemy.speed = Math.min(
-      randomRange(3, 3.25) + this.score * 0.01,
-      Settings.maxSpeed,
-    );
-    const index = ((this.subIndex || 0) + count - 1) % count;
-    enemy.x = this.terrain.objects[index].x;
-    enemy.index = Math.round(enemy.x / Settings.cubeSize);
+  move = () => {
+    this.animation = {
+      timestamp: this.time,
+      duration: Settings.moveAnimationDuration,
+      current: this.x,
+      target: this.x - Settings.cubeSize,
+    };
   };
-
-  collision = () => {
-    for (let enemy of this.enemies.objects) {
-      if (this.playerIndex === enemy.index) {
-        if (enemy.collidable) {
-          this.onCollide();
-        }
-        return;
-      }
-    }
-  };
-
   update(delta, time) {
+    this.time = time;
     super.update(delta, time);
-    if (this.enemies) {
-      this.collision();
+    if (this.animation) {
+      const { current, target, duration, timestamp } = this.animation;
+      const currentTime = time - timestamp;
+      if (currentTime < duration) {
+        this.x = easeInQuad(currentTime, current, target, duration);
+      } else {
+        this.x = target;
+        this.animation = null;
+      }
     }
   }
 }

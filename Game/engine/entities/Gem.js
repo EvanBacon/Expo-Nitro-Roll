@@ -2,13 +2,11 @@ import ExpoTHREE, { THREE } from 'expo-three';
 
 import GameObject from '../core/GameObject';
 import Factory from '../Factory';
-import Settings from '../../../constants/Settings';
-import randomRange from '../utils/randomRange';
 
 class Gem extends GameObject {
   loadAsync = async scene => {
     global.gemGeom = global.gemGeom || this.gemGeometry;
-    this._mat = Factory.shared.materials.green; //.clone();
+    this._mat = Factory.shared.materials.green;
     const mesh = new THREE.Mesh(global.gemGeom, this._mat);
     ExpoTHREE.utils.scaleLongestSideToSize(mesh, 30);
     this.add(mesh);

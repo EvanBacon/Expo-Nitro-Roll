@@ -3,10 +3,9 @@ import Expo from 'expo';
 import Assets from '../Assets';
 import arrayFromObject from '../utils/arrayFromObject';
 import cacheAssetsAsync from '../utils/cacheAssetsAsync';
-import Manager from './Manager';
 import { dispatch } from '@rematch/core';
 
-class AudioManager extends Manager {
+class AudioManager {
   sounds = {};
 
   playAsync = async (name, isLooping, startOver = true) => {
@@ -95,12 +94,11 @@ class AudioManager extends Manager {
       files: [...arrayFromObject(this.assets)],
     });
 
-  async setupAsync() {
+  setupAsync = async () => {
     await this.configureExperienceAudioAsync();
     await this.downloadAsync();
     await this.setupAudioAsync();
-    await super.setupAsync();
-  }
+  };
 }
 
 AudioManager.sharedInstance = new AudioManager();

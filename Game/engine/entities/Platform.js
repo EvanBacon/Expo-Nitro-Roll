@@ -1,8 +1,8 @@
 import { THREE } from 'expo-three';
 
+import Settings from '../../../constants/Settings';
 import GameObject from '../core/GameObject';
 import Factory from '../Factory';
-import Settings from '../../../constants/Settings';
 
 const radius = Settings.cubeSize;
 global.platformGeom =

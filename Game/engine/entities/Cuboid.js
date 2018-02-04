@@ -1,9 +1,9 @@
 import { THREE } from 'expo-three';
 
+import Settings from '../../../constants/Settings';
 import GameObject from '../core/GameObject';
 import Factory from '../Factory';
-import Settings from '../../../constants/Settings';
-import randomRange from '../utils/randomRange';
+import easeInQuad from '../math/easeInQuad';
 
 const radius = Settings.cubeSize;
 const height = 100;
@@ -53,6 +53,9 @@ class Cuboid extends GameObject {
     }
   };
 
+  get rotating() {
+    return this._rotating;
+  }
   set rotating(value) {
     if (value === this._rotating) {
       return;
@@ -62,8 +65,8 @@ class Cuboid extends GameObject {
       this.animation = {
         current: angle,
         target: angle - Math.PI / 2,
-        timestamp: new Date().getTime(),
-        duration: Settings.moveAnimationDuration * 1000,
+        timestamp: this.time,
+        duration: Settings.moveAnimationDuration,
       };
     } else {
       this.animation = null;
@@ -76,11 +79,12 @@ class Cuboid extends GameObject {
   }
 
   update(delta, time) {
+    this.time = time;
     super.update(delta, time);
     if (this._rotating) {
       const { current, target, duration, timestamp } = this.animation;
 
-      const currentTime = new Date().getTime() - timestamp;
+      const currentTime = time - timestamp;
       if (currentTime < duration) {
         this.group.rotation.z = easeInQuad(
           currentTime,
@@ -105,6 +109,4 @@ class Cuboid extends GameObject {
 
 const moveTarget = Settings.initialCube + 1 * Settings.cubeSize;
 const moveHome = Settings.initialCube * Settings.cubeSize;
-import easeInQuad from '../math/easeInQuad';
-
 export default Cuboid;

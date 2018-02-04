@@ -9,7 +9,15 @@ class Cancel extends React.Component {
   };
   render() {
     const { onPress, name, ...props } = this.props;
-    return <Icon onPress={this.onPress} name="times" {...props} />;
+    return (
+      <Icon
+        color="#20D8FD"
+        style={{ borderColor: '#20D8FD' }}
+        onPress={this.onPress}
+        name="times"
+        {...props}
+      />
+    );
   }
 }
 
