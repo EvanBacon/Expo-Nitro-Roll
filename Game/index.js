@@ -45,7 +45,6 @@ class Machine {
     this.time += delta;
 
     this.game.update(delta, this.time);
-    // this.renderer.render(this.game.scene, this.game.camera);
     this.composer.render(delta);
   };
 }

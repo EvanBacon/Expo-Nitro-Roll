@@ -69,14 +69,10 @@ class Game extends GameObject {
   };
 
   loadHero = async () => {
-    this.lastLevelPosition = 0;
-
     if (this.hero) {
       this.remove(this.hero);
     }
     this.hero = await this.add(new Cuboid());
-    // this.hero.onMove = value =>
-    //   (this.level.x = this.lastLevelPosition - value % Settings.cubeSize);
     this.hero.onComplete = async () => (this.level.index = this.index);
   };
 

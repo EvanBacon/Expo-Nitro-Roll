@@ -1,12 +1,13 @@
 import Colors from '../../constants/Colors';
-import flatMaterial from './utils/flatMaterial';
-
+import { THREE } from 'expo-three';
 class Factory {
   materials = {};
 
   constructor() {
     Object.keys(Colors).map(key => {
-      this.materials[key] = flatMaterial({ color: Colors[key] });
+      this.materials[key] = new THREE.MeshLambertMaterial({
+        color: Colors[key],
+      });
     });
   }
 }
