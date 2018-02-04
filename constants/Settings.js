@@ -4,4 +4,6 @@ export default {
   initialCube: 2,
   moveAnimationDuration: 0.1,
   maxSpeed: 6,
+  cubesWide: 7,
+  cubesHigh: 12,
 };

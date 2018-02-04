@@ -10,7 +10,7 @@ const height = radius * 5;
 const maxScale = height / radius;
 const halfSize = radius / 2;
 const halfHeight = height / 2;
-const forgivness = 0.8;
+const forgivness = 0.7;
 global.cuboidGeom =
   global.cuboidGeom || new THREE.BoxBufferGeometry(radius, radius, radius);
 class Obstacle extends GameObject {

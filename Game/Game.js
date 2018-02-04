@@ -1,7 +1,7 @@
 import Settings from '../constants/Settings';
 import { dispatch } from '@rematch/core';
 import ExpoTHREE, { THREE } from 'expo-three';
-import { Expo as ExpoEase, Linear, TweenLite } from 'gsap';
+import { Expo as ExpoEase, Linear, TweenLite, Quad } from 'gsap';
 
 import AudioManager from '../Manager/AudioManager';
 import GameObject from './engine/core/GameObject';
@@ -12,9 +12,11 @@ import Platform from './engine/entities/Platform';
 import Stars from './engine/entities/Stars';
 import randomRange from './engine/utils/randomRange';
 import Obstacle from './engine/entities/Obstacle';
+import Terrain from './engine/entities/Terrain';
+import Level from './engine/entities/Level';
 
-const height = Settings.cubeSize * 12;
-const width = Settings.cubeSize * 7;
+const height = Settings.cubeSize * Settings.cubesHigh;
+const width = Settings.cubeSize * Settings.cubesWide;
 
 class Game extends GameObject {
   gameEnded = false;
@@ -74,32 +76,28 @@ class Game extends GameObject {
   }
 
   loadGame = async () => {
-    if (this.levelGroup) {
-      this.terrainGroup = null;
-      this.enemyGroup = null;
-      this.remove(this.levelGroup);
-      this.levelGroup = null;
+    if (this.level) {
+      this.remove(this.level);
+      this.level = null;
     }
-
-    this.levelGroup = await this.add(new Group());
-    this.terrainGroup = await this.levelGroup.add(new Group());
-    this.enemyGroup = await this.levelGroup.add(new Group());
+    this.level = await this.add(new Level());
+    this.level.onCollide = () => this.gameOver();
 
     this.camera.position.x = width / Settings.cubeSize * Settings.cubeSize / 2;
-    for (let i = 0; i < width / Settings.cubeSize + 2; i++) {
-      const square = await this.terrainGroup.add(new Platform());
-      square.x = i * Settings.cubeSize;
-    }
 
     if (this.hero) {
       this.remove(this.hero);
     }
     this.hero = await this.add(new Cuboid());
-    this.hero.x = (Settings.initialCube - 1) * Settings.cubeSize;
-    this.hero.y = Settings.cubeSize;
-    this.hero.canMove = true;
-    this.hero._index = 0;
-    this.hero.updatePivot();
+
+    this.lastLevelPosition = 0;
+    this.hero.onMove = value => {
+      this.level.x = this.lastLevelPosition - value % Settings.cubeSize;
+    };
+    this.hero.onComplete = async () => {
+      this.level.finishedMoving();
+    };
+
     this.addEnemy();
   };
 
@@ -164,102 +162,17 @@ class Game extends GameObject {
       AudioManager.sharedInstance.playAsync(
         'pop_0' + Math.round(randomRange(0, 1)),
       );
-      this.hero.canMove = false;
       dispatch.score.increment();
       this.score += 1;
-
-      this.hero._index =
-        (this.levelGroup.x / Settings.cubeSize - Settings.initialCube) * -1;
-      TweenLite.to(this.levelGroup, Settings.moveAnimationDuration, {
-        x: this.levelGroup.x - Settings.cubeSize,
-      });
-      TweenLite.to(this.hero, Settings.moveAnimationDuration, {
-        x: this.hero.x - Settings.cubeSize,
-        onComplete: () => {
-          this.hero.x = Settings.initialCube * Settings.cubeSize;
-        },
-      });
-
-      const targetRotation = this.hero.group.rotation.z - Math.PI / 2;
-      TweenLite.to(this.hero.group.rotation, Settings.moveAnimationDuration, {
-        z: targetRotation,
-        onComplete: async () => {
-          this.hero.group.rotation.z = targetRotation;
-          this.hero.updatePivot();
-          this.hero.canMove = true;
-          const index = this.terrainGroup.subIndex || 0;
-          let enemy = this.enemyGroup.objects[0];
-          if (
-            this.enemyGroup.objects.length > 0 &&
-            enemy.x <= this.terrainGroup.objects[index].x &&
-            enemy.dead !== true
-          ) {
-            enemy.dead = true;
-            // this.enemyGroup.remove(enemy);
-            this.deadEnemies.push(enemy);
-            enemy = null;
-          }
-
-          this.terrainGroup.objects[index].position.x +=
-            this.terrainGroup.children.length * Settings.cubeSize;
-          this.terrainGroup.subIndex =
-            (index + 1) % this.terrainGroup.objects.length;
-
-          if (randomRange(0, 9) > 4 && this.enemyCombo < 3) {
-            await this.addEnemy();
-            this.enemyCombo += 1;
-          } else {
-            this.enemyCombo = 0;
-          }
-        },
-      });
+      this.level.score = this.score;
+      this.lastLevelPosition = this.level.x;
+      this.hero.rotating = true;
     }
-  };
-  enemyCombo = 0;
-
-  collision = () => {
-    const playerIndex = Math.floor(
-      (this.hero.x - this.levelGroup.x) / Settings.cubeSize,
-    );
-
-    for (let enemy of this.enemyGroup.objects) {
-      const index = Math.floor(enemy.x / Settings.cubeSize);
-      if (playerIndex === index) {
-        if (enemy.collidable) {
-          this.gameOver();
-        }
-        return;
-      }
-    }
-  };
-
-  deadEnemies = [];
-
-  addEnemy = async () => {
-    const count = this.terrainGroup.objects.length;
-
-    let enemy;
-    if (this.deadEnemies.length > 0) {
-      enemy = this.deadEnemies.shift();
-      enemy.dead = false;
-      enemy.updateClass();
-    } else {
-      enemy = await this.enemyGroup.add(new Obstacle());
-    }
-
-    enemy.speed = Math.min(
-      randomRange(3, 3.25) + this.score * 0.01,
-      Settings.maxSpeed,
-    );
-    const index = ((this.terrainGroup.subIndex || 0) + count - 1) % count;
-    enemy.x = this.terrainGroup.objects[index].x;
   };
 
   update(delta, time) {
     super.update(delta, time);
-    if (this.enemyGroup) {
-      this.collision();
-    }
+    this.level.playerIndex = this.hero.index;
   }
 
   onResize = ({ width, height }) => {

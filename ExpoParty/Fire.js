@@ -28,7 +28,7 @@ class Fire {
         alert(message);
       }
     } else {
-      // return;
+      return;
       await this.getUser();
       this.saveUser();
       this.compareDaily();
@@ -42,9 +42,9 @@ class Fire {
         .get()
         .then(doc => {
           if (!doc.exists) {
-            console.log('No such document!');
+            // console.log('No such document!');
           } else {
-            console.log('Document data:', doc.data());
+            // console.log('Document data:', doc.data());
             this.userData = doc.data();
           }
           res();
@@ -57,7 +57,7 @@ class Fire {
     const dailyVisits = await this.incrementDailyReward();
 
     if (dailyVisits != this.userData.dailyVisits) {
-      console.log('Yay! You came back, your streak is now at: ' + dailyVisits);
+      // console.log('Yay! You came back, your streak is now at: ' + dailyVisits);
 
       dispatch.dailyStreak.assign(dailyVisits);
       if (dailyVisits > this.userData.dailyVisits) {
@@ -66,7 +66,7 @@ class Fire {
       this.userData.dailyVisits = dailyVisits;
       /// Give reward!
     } else {
-      console.log('ummmm', dailyVisits);
+      // console.log('ummmm', dailyVisits);
     }
   };
 
@@ -87,7 +87,7 @@ class Fire {
 
             if (hours >= 24) {
               if (hours >= 48) {
-                console.log('More than a day');
+                // console.log('More than a day');
                 // It has been more than 1 day since the last visit - break the streak
                 const newDailyVisits = 0;
                 transaction.update(this.doc, {
@@ -97,7 +97,7 @@ class Fire {
                 this.userData.lastRewardTimestamp = timestamp;
                 return newDailyVisits;
               } else {
-                console.log('You were here yesterday');
+                // console.log('You were here yesterday');
                 // Perfect! It has been 1 day since the last visit - increment streak and save current time
 
                 const dailyVisits = data.dailyVisits || 0;
@@ -110,7 +110,7 @@ class Fire {
                 return newDailyVisits;
               }
             } else {
-              console.log('Within day');
+              // console.log('Within day');
               transaction.update(this.doc, {
                 dailyVisits: data.dailyVisits || 0,
                 lastRewardTimestamp:
@@ -137,7 +137,7 @@ class Fire {
     if (!uid) {
       return;
     }
-    console.log('saveUserInfo', uid, info);
+    // console.log('saveUserInfo', uid, info);
     const ref = this.db.collection(getSlug()).doc(uid);
     const setWithMerge = ref.set({ uid, ...info }, { merge: true });
   };

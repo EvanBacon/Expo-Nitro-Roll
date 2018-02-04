@@ -5,7 +5,7 @@
       "Roll through through the nitro-sonic Voidiverse avoiding the Bleaqaulizers!",
     "slug": "nitroroll",
     "privacy": "public",
-    "sdkVersion": "25.0.0",
+    "sdkVersion": "24.0.0",
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#000000",
