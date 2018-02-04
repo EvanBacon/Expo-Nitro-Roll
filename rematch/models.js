@@ -72,7 +72,7 @@ export const screenshot = {
     updateAsync: async ({ ref }) => {
       const { width, height } = Dimensions.get('window');
       const options = {
-        format: 'jpg',
+        format: 'png',
         quality: 0.3,
         result: 'file',
         height,

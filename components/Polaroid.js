@@ -1,5 +1,13 @@
 import React, { Component } from 'react';
-import { Image, Share, Animated, Text, View, StyleSheet } from 'react-native';
+import {
+  Image,
+  Share,
+  Animated,
+  Text,
+  View,
+  StyleSheet,
+  Platform,
+} from 'react-native';
 import TouchableBounce from 'react-native/Libraries/Components/Touchable/TouchableBounce'; // Supported builtin module
 import { FontAwesome } from '@expo/vector-icons'; // 6.2.0
 import Colors from '../constants/Colors';
@@ -113,7 +121,7 @@ class PresentedPolaroid extends React.Component {
     const { game, screenshot } = this.props;
     const animation = game === 'menu' ? 'bounceInRight' : 'bounceOutRight';
 
-    if (!screenshot || screenshot == '') {
+    if (Platform.OS === 'android' || !screenshot || screenshot == '') {
       return null;
     }
 

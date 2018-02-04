@@ -1,22 +1,17 @@
 import ExpoTHREE from 'expo-three';
 
 import Composer from './Composer';
+
 import Game from './Game';
 import { PixelRatio } from 'react-native';
-
+import Renderer from './Renderer';
 class Machine {
   time = 0;
 
   onContextCreateAsync = async gl => {
     const { drawingBufferWidth: width, drawingBufferHeight: height } = gl;
     const scale = PixelRatio.get();
-    this.renderer = ExpoTHREE.createRenderer({
-      gl,
-    });
-    this.renderer.setPixelRatio(scale);
-    this.renderer.setSize(width / scale, height / scale);
-    // this.renderer.setSize(width, height);
-
+    this.renderer = Renderer(gl);
     this.game = new Game(width, height, this.renderer);
     await this.game.loadAsync();
 
@@ -35,13 +30,14 @@ class Machine {
     const width = layout.width;
     const height = layout.height;
     if (this.renderer) {
+      this.renderer.setPixelRatio(scale);
       this.renderer.setSize(width, height);
     }
     if (this.composer) {
       this.composer.setSize(width, height);
     }
     if (this.game) {
-      this.game.onResize({ width, height });
+      this.game.onResize(layout);
     }
   };
 

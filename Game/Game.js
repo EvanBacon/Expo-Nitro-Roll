@@ -11,6 +11,7 @@ import Lighting from './engine/entities/Lighting';
 import Platform from './engine/entities/Platform';
 import Stars from './engine/entities/Stars';
 import randomRange from './engine/utils/randomRange';
+import Obstacle from './engine/entities/Obstacle';
 
 const height = Settings.cubeSize * 12;
 const width = Settings.cubeSize * 7;
@@ -52,7 +53,7 @@ class Game extends GameObject {
   }
 
   get color() {
-    return new THREE.Color(`hsl(20, 100%, 70%)`);
+    return new THREE.Color(`hsl(20, 100%, 0%)`);
   }
 
   async loadAsync() {
@@ -64,7 +65,7 @@ class Game extends GameObject {
     this.scene.add(this);
     this.camera = await this.createCameraAsync(this._width, this._height);
 
-    const types = [new Lighting(), new Stars()];
+    const types = [new Lighting(this), new Stars(this)];
     const promises = types.map(type => this.add(type));
     await Promise.all(promises);
     await this.loadGame();
@@ -94,9 +95,10 @@ class Game extends GameObject {
       this.remove(this.hero);
     }
     this.hero = await this.add(new Cuboid());
-    this.hero.x = Settings.initialCube * Settings.cubeSize;
+    this.hero.x = (Settings.initialCube - 1) * Settings.cubeSize;
     this.hero.y = Settings.cubeSize;
     this.hero.canMove = true;
+    this.hero._index = 0;
     this.hero.updatePivot();
     this.addEnemy();
   };
@@ -165,6 +167,9 @@ class Game extends GameObject {
       this.hero.canMove = false;
       dispatch.score.increment();
       this.score += 1;
+
+      this.hero._index =
+        (this.levelGroup.x / Settings.cubeSize - Settings.initialCube) * -1;
       TweenLite.to(this.levelGroup, Settings.moveAnimationDuration, {
         x: this.levelGroup.x - Settings.cubeSize,
       });
@@ -213,10 +218,12 @@ class Game extends GameObject {
   enemyCombo = 0;
 
   collision = () => {
-    const playerIndex = Math.floor((this.hero.x - this.levelGroup.x) / 40);
+    const playerIndex = Math.floor(
+      (this.hero.x - this.levelGroup.x) / Settings.cubeSize,
+    );
 
     for (let enemy of this.enemyGroup.objects) {
-      const index = Math.floor(enemy.x / 40);
+      const index = Math.floor(enemy.x / Settings.cubeSize);
       if (playerIndex === index) {
         if (enemy.collidable) {
           this.gameOver();
@@ -237,7 +244,7 @@ class Game extends GameObject {
       enemy.dead = false;
       enemy.updateClass();
     } else {
-      enemy = await this.enemyGroup.add(new Cuboid());
+      enemy = await this.enemyGroup.add(new Obstacle());
     }
 
     enemy.speed = Math.min(

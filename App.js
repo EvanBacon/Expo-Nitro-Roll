@@ -4,7 +4,7 @@ import './window/resize';
 import Expo from 'expo';
 import { THREE } from 'expo-three';
 import React from 'react';
-import { View } from 'react-native';
+import { View, StatusBar } from 'react-native';
 
 import Assets from './Assets';
 import Settings from './constants/Settings';
@@ -34,6 +34,7 @@ export default class App extends React.Component {
   }
 
   componentWillMount() {
+    StatusBar.setBarStyle('light-content');
     THREE.suppressExpoWarnings(true);
     this._setupExperienceAsync();
   }

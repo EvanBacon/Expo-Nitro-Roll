@@ -28,7 +28,7 @@ class Fire {
         alert(message);
       }
     } else {
-      return;
+      // return;
       await this.getUser();
       this.saveUser();
       this.compareDaily();
