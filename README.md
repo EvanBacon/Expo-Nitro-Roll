@@ -65,3 +65,22 @@ yarn && exp start
 
 </div>
 
+
+
+### Download on iOS
+
+The lovely iOS version can be found here 👉 [App Store](https://itunes.apple.com/us/app/nitro-roll/id1336537624?mt=8)
+
+### Download on Android
+
+The beautiful Android version can be found here 👉 [Play Store](https://play.google.com/store/apps/details?id=com.evanbacon.nitroroll).
+
+### Stack
+
+- [Expo](http://expo.io)
+- [THREE.js](https://threejs.org/)
+- [GSAP](https://greensock.com/)
+
+----
+
+
