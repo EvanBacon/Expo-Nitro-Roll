@@ -2,6 +2,7 @@ import GameObject from '../core/GameObject';
 import flatMaterial from '../utils/flatMaterial';
 import randomRange from '../utils/randomRange';
 import Factory from '../Factory';
+import { Platform } from 'react-native';
 
 class Stars extends GameObject {
   particles = [];
@@ -14,7 +15,8 @@ class Stars extends GameObject {
     );
     const material = Factory.shared.materials.red;
 
-    for (let i = 0; i < 50; i++) {
+    const count = Platform.OS === 'android' ? 0 : 50;
+    for (let i = 0; i < count; i++) {
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(
         (Math.random() - 0.5) * 1000,
