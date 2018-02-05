@@ -79,8 +79,6 @@ The beautiful Android version can be found here 👉 [Play Store](https://play.g
 
 - [Expo](http://expo.io)
 - [THREE.js](https://threejs.org/)
-- [GSAP](https://greensock.com/)
 
-----
 
 
