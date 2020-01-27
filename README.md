@@ -1,6 +1,6 @@
 # Expo Nitro Run
 
-### Roll through through the nitro-sonic Voidiverse avoiding the Bleaqaulizers!
+### Roll through the nitro-sonic Voidiverse avoiding the Bleaqaulizers!
 
 **Demo: https://expo.io/@bacon/nitroroll**
 
