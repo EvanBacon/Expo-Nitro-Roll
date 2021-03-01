@@ -30,7 +30,7 @@
     "redux": "^3.7.2",
     "redux-persist": "^5.4.0",
     "text-encoding": "0.6.4",
-    "three": "^0.89.0",
+    "three": "^0.125.0",
     "xmldom-qsa": "1.0.3"
   }
 }
